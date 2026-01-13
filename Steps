@@ -1,0 +1,154 @@
+EC2 3-Server SSH Setup
+
+We have 3 EC2 instances:
+
+Server-1
+Server-2
+Server-3
+
+Step 1 — Set Hostname
+
+Run these commands on each server.
+
+On Server-1
+
+sudo hostnamectl set-hostname server1
+exec bash
+
+On Server-2
+
+sudo hostnamectl set-hostname server2
+exec bash
+
+On Server-3
+
+sudo hostnamectl set-hostname server3
+exec bash
+
+Check:
+
+hostname
+
+
+Step 2 — Add Private IP and Hostnames
+
+
+First, get private IP of each server:
+
+ip a
+
+or 
+
+hostname -I
+
+For Example:
+
+Server-1 → 10.0.0.10
+Server-2 → 10.0.0.11
+Server-3 → 10.0.0.12
+
+Now on all three servers, open hosts file:
+
+sudo vi /etc/hosts
+
+Add:
+
+10.0.0.10   server1
+10.0.0.11   server2
+10.0.0.12   server3
+
+:wq --- Save and exit.
+
+
+Step 3 — Generate SSH Key on All Servers
+
+Run this on:
+
+Server-1
+Server-2
+Server-3
+
+ssh-keygen
+
+Press Enter for all prompts.
+
+Get public key on each server:
+
+cat ~/.ssh/id_rsa.pub
+
+Copy:
+
+Server-1 public key
+Server-2 public key
+Server-3 public key
+
+
+Step 4 — Exchange SSH Keys
+
+Each server will add the other two servers’ keys into its authorized_keys file.
+
+On Server-1
+
+vi ~/.ssh/authorized_keys
+
+Paste:
+
+Server-2 public key
+Server-3 public key
+
+:wq --- Save & exit.
+
+chmod 600 ~/.ssh/authorized_keys
+
+
+On Server-2
+
+vi ~/.ssh/authorized_keys
+
+Paste:
+
+Server-1 public key
+Server-3 public key
+
+:wq --- Save & exit.
+
+chmod 600 ~/.ssh/authorized_keys
+
+On Server-3
+
+vi ~/.ssh/authorized_keys
+
+Paste:
+
+Server-1 public key
+Server-2 public key
+
+:wq --- Save & exit.
+
+chmod 600 ~/.ssh/authorized_keys
+
+
+
+Step 5 — Test SSH
+
+From any server:
+
+ssh server1
+
+The first time, you will see:
+
+Are you sure you want to continue connecting (yes/no)?
+
+Type: yes
+
+and press Enter.
+
+Now test the others:
+
+ssh server2
+ssh server3
+
+Again, type yes if asked.
+
+If no password is requested and login works,
+your SSH setup is successful ✅
